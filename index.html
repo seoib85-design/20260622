@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로또 추첨기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #da291c;
+      --primary-active: #b01e0a;
+      --ink: #ffffff;
+      --body: #969696;
+      --muted: #666666;
+      --muted-soft: #8f8f8f;
+      --hairline: #303030;
+      --hairline-on-light: #d2d2d2;
+      --canvas: #181818;
+      --canvas-elevated: #303030;
+      --canvas-light: #ffffff;
+      --surface-soft-light: #f7f7f7;
+      --body-on-light: #181818;
+      --on-primary: #ffffff;
+      --rounded-none: 0px;
+      --rounded-sm: 4px;
+      --rounded-full: 9999px;
+      --xxxs: 4px;
+      --xxs: 8px;
+      --xs: 16px;
+      --sm: 24px;
+      --md: 32px;
+      --lg: 48px;
+      --xl: 64px;
+      --xxl: 96px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', 'Noto Sans KR', -apple-system, system-ui, sans-serif;
+      background: var(--canvas);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.5;
+    }
+
+    .top-nav {
+      background: var(--canvas);
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--sm);
+      border-bottom: 1px solid var(--hairline);
+    }
+
+    .nav-brand {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.65px;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: var(--md);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.65px;
+      text-transform: uppercase;
+      color: var(--body);
+    }
+
+    .nav-links span {
+      color: var(--ink);
+    }
+
+    .hero {
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(60, 60, 60, 0.6) 0%, rgba(3, 3, 3, 0.92) 64%),
+        linear-gradient(135deg, #2a2a2a 0%, #181818 50%, #1a0806 100%);
+      padding: var(--xxl) var(--sm) var(--lg);
+      border-bottom: 1px solid var(--hairline);
+    }
+
+    .hero-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .hero-kicker {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+      color: var(--body);
+      margin-bottom: var(--xs);
+    }
+
+    h1 {
+      font-size: clamp(32px, 8vw, 80px);
+      font-weight: 500;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: var(--xs);
+    }
+
+    .subtitle {
+      color: var(--body);
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.5;
+      max-width: 480px;
+    }
+
+    .livery-band {
+      background: var(--primary);
+      color: var(--ink);
+      padding: var(--xs) var(--sm);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+    }
+
+    .page-wrap {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: var(--lg) var(--sm);
+      flex: 1;
+    }
+
+    main {
+      width: 100%;
+    }
+
+    .section {
+      margin-bottom: var(--lg);
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+      color: var(--body);
+      margin-bottom: var(--xxs);
+    }
+
+    .section-head h2 {
+      font-size: 36px;
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      margin-bottom: var(--xs);
+    }
+
+    .draw-area {
+      background: linear-gradient(180deg, #0a1628 0%, #0d1f3c 50%, #081428 100%);
+      border-radius: var(--rounded-none);
+      padding: 0;
+      border: 1px solid #1a3a6e;
+      overflow: hidden;
+    }
+
+    .draw-area .section-label {
+      padding: var(--xs) var(--md) 0;
+      color: #6b9fd4;
+    }
+
+    .broadcast-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--xxs) var(--md);
+      background: rgba(0, 0, 0, 0.35);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+      color: #fff;
+      background: var(--primary);
+      padding: 4px 10px;
+    }
+
+    .live-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #fff;
+      animation: livePulse 1.2s ease infinite;
+    }
+
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .draw-status {
+      font-size: 13px;
+      font-weight: 500;
+      color: #a8c8f0;
+      letter-spacing: 0.02em;
+    }
+
+    .lotto-stage {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: var(--md);
+      padding: var(--md);
+      align-items: center;
+    }
+
+    @media (max-width: 720px) {
+      .lotto-stage {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .lotto-machine-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .machine-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+      color: #6b9fd4;
+      margin-bottom: var(--xxs);
+    }
+
+    .lotto-machine {
+      position: relative;
+      width: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .machine-dome {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.35) 0%, transparent 45%),
+        radial-gradient(circle at 70% 75%, rgba(100, 160, 255, 0.15) 0%, transparent 50%),
+        linear-gradient(145deg, rgba(180, 210, 255, 0.25) 0%, rgba(80, 130, 200, 0.12) 100%);
+      border: 3px solid rgba(200, 220, 255, 0.45);
+      box-shadow:
+        inset 0 -20px 40px rgba(0, 40, 100, 0.3),
+        inset 0 10px 30px rgba(255, 255, 255, 0.1),
+        0 8px 32px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+    }
+
+    .machine-dome.spinning {
+      animation: domeShake 0.15s ease infinite alternate;
+    }
+
+    @keyframes domeShake {
+      from { transform: rotate(-1.5deg); }
+      to   { transform: rotate(1.5deg); }
+    }
+
+    .tumble-balls {
+      position: absolute;
+      inset: 0;
+    }
+
+    .tumble-ball {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: 9px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: inset -2px -3px 4px rgba(0, 0, 0, 0.25);
+      transition: transform 0.1s linear;
+    }
+
+    .tumble-ball.yellow { background: linear-gradient(145deg, #ffd54f, #f9a825); color: #1a1a1a; }
+    .tumble-ball.blue   { background: linear-gradient(145deg, #42a5f5, #1565c0); }
+    .tumble-ball.red    { background: linear-gradient(145deg, #ef5350, #c62828); }
+    .tumble-ball.gray   { background: linear-gradient(145deg, #78909c, #455a64); }
+    .tumble-ball.green  { background: linear-gradient(145deg, #66bb6a, #2e7d32); }
+
+    .machine-neck {
+      width: 36px;
+      height: 28px;
+      background: linear-gradient(180deg, #8899aa 0%, #556677 100%);
+      margin-top: -4px;
+      clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+    }
+
+    .machine-chute {
+      width: 44px;
+      height: 100px;
+      background: linear-gradient(90deg, #334455 0%, #556677 50%, #334455 100%);
+      border-left: 2px solid #667788;
+      border-right: 2px solid #223344;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .chute-ball {
+      position: absolute;
+      left: 50%;
+      top: -40px;
+      transform: translateX(-50%) scale(0);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+    }
+
+    .chute-ball.rolling {
+      animation: rollDown 0.9s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
+    }
+
+    @keyframes rollDown {
+      0%   { top: -40px; opacity: 0; transform: translateX(-50%) scale(0.5); }
+      15%  { opacity: 1; transform: translateX(-50%) scale(1); }
+      70%  { top: 50px; }
+      85%  { top: 72px; transform: translateX(-50%) scale(1.05); }
+      100% { top: 68px; opacity: 1; transform: translateX(-50%) scale(1); }
+    }
+
+    .chute-ball.spinning-num {
+      animation: numSpin 0.08s linear infinite;
+    }
+
+    @keyframes numSpin {
+      0%, 100% { filter: brightness(1); }
+      50%      { filter: brightness(1.3); }
+    }
+
+    .machine-base {
+      width: 160px;
+      height: 24px;
+      background: linear-gradient(180deg, #445566 0%, #223344 100%);
+      border-radius: 0 0 4px 4px;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: #8899aa;
+      text-transform: uppercase;
+    }
+
+    .result-board {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(100, 160, 255, 0.2);
+      padding: var(--sm);
+    }
+
+    .result-board-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+      color: #6b9fd4;
+      margin-bottom: var(--xs);
+      text-align: center;
+    }
+
+    .result-slots {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--xxs);
+      margin-bottom: var(--xs);
+    }
+
+    .result-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .slot-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #6b9fd4;
+      letter-spacing: 0.05em;
+    }
+
+    .slot-ball {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.15rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.25);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .slot-ball.waiting {
+      animation: slotPulse 1s ease infinite;
+    }
+
+    @keyframes slotPulse {
+      0%, 100% { border-color: rgba(255, 255, 255, 0.15); }
+      50%      { border-color: rgba(218, 41, 28, 0.6); box-shadow: 0 0 12px rgba(218, 41, 28, 0.3); }
+    }
+
+    .slot-ball.revealed {
+      border: none;
+      color: #fff;
+      transform: scale(1);
+      animation: slotPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes slotPop {
+      0%   { transform: scale(0.3); }
+      60%  { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .slot-ball.yellow { background: linear-gradient(145deg, #ffd54f, #f9a825); color: #1a1a1a; }
+    .slot-ball.blue   { background: linear-gradient(145deg, #42a5f5, #1565c0); }
+    .slot-ball.red    { background: linear-gradient(145deg, #ef5350, #c62828); }
+    .slot-ball.gray   { background: linear-gradient(145deg, #78909c, #455a64); }
+    .slot-ball.green  { background: linear-gradient(145deg, #66bb6a, #2e7d32); }
+
+    .bonus-row {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: var(--xxs);
+      padding-top: var(--xs);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: var(--xxs);
+    }
+
+    .bonus-row.visible {
+      display: flex;
+    }
+
+    .bonus-row .slot-label {
+      font-size: 12px;
+      color: #ffd54f;
+    }
+
+    .draw-message {
+      text-align: center;
+      min-height: 1.5em;
+      padding: var(--xs) var(--md);
+      font-size: 15px;
+      font-weight: 500;
+      color: #e8f0ff;
+      background: rgba(0, 0, 0, 0.2);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .draw-message.highlight {
+      color: #ffd54f;
+      font-size: 16px;
+    }
+
+    .draw-controls {
+      padding: var(--sm) var(--md) var(--md);
+      background: rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: var(--sm);
+      align-items: center;
+    }
+
+    .balls {
+      display: none;
+    }
+
+    .ball {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--rounded-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--on-primary);
+    }
+
+    .ball.yellow  { background: #f9a825; color: var(--body-on-light); }
+    .ball.blue    { background: #1565c0; }
+    .ball.red     { background: #c62828; }
+    .ball.gray    { background: #455a64; }
+    .ball.green   { background: #2e7d32; }
+
+    .bonus-section {
+      display: none;
+    }
+
+    .options {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--xxs);
+      font-size: 14px;
+      color: var(--body);
+    }
+
+    .options label {
+      display: flex;
+      align-items: center;
+      gap: var(--xxs);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .options input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .btn-draw {
+      width: 100%;
+      max-width: 320px;
+      padding: 14px 32px;
+      height: 48px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--on-primary);
+      background: var(--primary);
+      border: none;
+      border-radius: var(--rounded-none);
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-draw:active:not(:disabled) {
+      background: var(--primary-active);
+    }
+
+    .btn-draw:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .band-light {
+      background: var(--canvas-light);
+      color: var(--body-on-light);
+      margin-left: calc(-1 * var(--sm));
+      margin-right: calc(-1 * var(--sm));
+      padding: var(--lg) var(--sm);
+      border-top: 1px solid var(--hairline-on-light);
+      border-bottom: 1px solid var(--hairline-on-light);
+    }
+
+    .band-light .section-label {
+      color: var(--muted);
+    }
+
+    .band-light .section-head h2 {
+      color: var(--body-on-light);
+    }
+
+    .history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--sm);
+      padding-bottom: var(--xs);
+      border-bottom: 1px solid var(--hairline);
+    }
+
+    .history-header h2 {
+      font-size: 26px;
+      font-weight: 500;
+      line-height: 1.5;
+      letter-spacing: 0.195px;
+    }
+
+    .btn-clear {
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: transparent;
+      border: 1px solid var(--ink);
+      border-radius: var(--rounded-none);
+      padding: 13px 31px;
+      height: 48px;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .btn-clear:active {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .history-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
+    .history-list:empty::after {
+      content: '아직 추첨 기록이 없습니다';
+      display: block;
+      text-align: center;
+      color: var(--body);
+      font-size: 14px;
+      padding: var(--md);
+      background: var(--canvas-elevated);
+      border: 1px solid var(--hairline);
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: var(--xxs);
+      padding: var(--xs) 0;
+      background: transparent;
+      border-bottom: 1px solid var(--hairline);
+      flex-wrap: wrap;
+    }
+
+    .history-index {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+      color: var(--body);
+      min-width: 2rem;
+    }
+
+    .history-balls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--xxxs);
+      flex: 1;
+    }
+
+    .mini-ball {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--rounded-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--on-primary);
+    }
+
+    .mini-ball.yellow  { background: #f9a825; color: var(--body-on-light); }
+    .mini-ball.blue    { background: #1565c0; }
+    .mini-ball.red     { background: #c62828; }
+    .mini-ball.gray    { background: #455a64; }
+    .mini-ball.green   { background: #2e7d32; }
+
+    .winners-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--sm);
+      margin-bottom: var(--sm);
+    }
+
+    .winners-meta {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: var(--xxxs);
+    }
+
+    .winners-search {
+      display: flex;
+      gap: var(--xxs);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .winners-search input {
+      flex: 1;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 400;
+      padding: 14px 16px;
+      height: 48px;
+      border-radius: var(--rounded-sm);
+      border: 1px solid var(--hairline-on-light);
+      background: var(--canvas-light);
+      color: var(--body-on-light);
+    }
+
+    .winners-search input::placeholder {
+      color: var(--muted-soft);
+    }
+
+    .winners-search input:focus {
+      outline: none;
+      border-color: var(--body-on-light);
+    }
+
+    .btn-search {
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      padding: 14px 32px;
+      height: 48px;
+      border-radius: var(--rounded-none);
+      border: none;
+      background: var(--primary);
+      color: var(--on-primary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s ease;
+    }
+
+    .btn-search:active {
+      background: var(--primary-active);
+    }
+
+    .winners-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-height: 420px;
+      overflow-y: auto;
+    }
+
+    .winner-item {
+      background: var(--canvas-light);
+      border-radius: var(--rounded-none);
+      border-bottom: 1px solid var(--hairline-on-light);
+      padding: var(--sm) 0;
+    }
+
+    .winner-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--xxxs) var(--xs);
+      margin-bottom: var(--xxs);
+    }
+
+    .winner-round {
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--body-on-light);
+    }
+
+    .winner-date {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .winner-prize {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .winner-prize.no-winner {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .winner-info {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--xxs);
+    }
+
+    .winner-winners {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .btn-load-more {
+      width: 100%;
+      margin-top: var(--sm);
+      padding: 13px 31px;
+      height: 48px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--body-on-light);
+      background: transparent;
+      border: 1px solid var(--body-on-light);
+      border-radius: var(--rounded-none);
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-load-more:active {
+      background: var(--surface-soft-light);
+    }
+
+    .winners-empty {
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      padding: var(--md);
+      background: var(--surface-soft-light);
+    }
+
+    footer {
+      background: var(--canvas);
+      border-top: 1px solid var(--hairline);
+      padding: var(--xl) var(--sm);
+      font-size: 13px;
+      color: var(--body);
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      .nav-links {
+        display: none;
+      }
+
+      .page-wrap {
+        padding: var(--sm) var(--xs);
+      }
+
+      .hero {
+        padding: var(--lg) var(--xs) var(--sm);
+      }
+
+      .draw-area {
+        padding: var(--sm);
+      }
+
+      .band-light {
+        margin-left: calc(-1 * var(--xs));
+        margin-right: calc(-1 * var(--xs));
+        padding: var(--sm) var(--xs);
+      }
+
+      .section-head h2 {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="top-nav" aria-label="주요 내비게이션">
+    <div class="nav-brand">Lotto 6/45</div>
+    <div class="nav-links">
+      <span>추첨</span>
+      <span>당첨 조회</span>
+      <span>기록</span>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="hero-kicker">Random Number Generator</p>
+      <h1>로또 추첨기</h1>
+      <p class="subtitle">1~45 중 서로 다른 숫자 6개를 무작위로 추첨합니다</p>
+    </div>
+  </section>
+
+  <div class="livery-band">동행복권 공식 데이터 · 1~1229회</div>
+
+  <div class="page-wrap">
+  <main>
+    <section class="section draw-area">
+      <p class="section-label">Live Draw</p>
+
+      <div class="broadcast-bar">
+        <span class="live-badge">Live</span>
+        <span class="draw-status" id="drawStatus">추첨 준비</span>
+      </div>
+
+      <div class="lotto-stage">
+        <div class="lotto-machine-wrap">
+          <span class="machine-label">추첨기</span>
+          <div class="lotto-machine" id="lottoMachine">
+            <div class="machine-dome" id="machineDome">
+              <div class="tumble-balls" id="tumbleBalls"></div>
+            </div>
+            <div class="machine-neck"></div>
+            <div class="machine-chute">
+              <div class="chute-ball" id="chuteBall"></div>
+            </div>
+            <div class="machine-base">Lotto 6/45</div>
+          </div>
+        </div>
+
+        <div class="result-board">
+          <p class="result-board-title">당첨번호</p>
+          <div class="result-slots" id="resultSlots"></div>
+          <div class="bonus-row" id="bonusRow">
+            <span class="slot-label">보너스</span>
+            <span style="color:#ffd54f;font-weight:700">+</span>
+            <div class="result-slot">
+              <div class="slot-ball" id="bonusSlot">?</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="draw-message" id="drawMessage" aria-live="polite">번호 추첨 버튼을 눌러 추첨을 시작하세요</p>
+
+      <div class="draw-controls">
+        <div class="options">
+          <label>
+            <input type="checkbox" id="includeBonus">
+            보너스 번호 포함
+          </label>
+        </div>
+        <button class="btn-draw" id="drawBtn" type="button">번호 추첨</button>
+      </div>
+
+      <div class="balls" id="balls" aria-hidden="true"></div>
+      <div class="bonus-section" id="bonusSection" aria-hidden="true">
+        <div class="ball" id="bonusBall"></div>
+      </div>
+    </section>
+
+    <section class="section band-light winners">
+      <div class="winners-header">
+        <div class="section-head">
+          <p class="section-label">Winning Numbers</p>
+          <h2>역대 1등 당첨번호</h2>
+          <p class="winners-meta" id="winnersMeta">동행복권 데이터 · 1~1229회</p>
+        </div>
+        <div class="winners-search">
+          <input type="number" id="roundSearch" min="1" placeholder="회차 검색 (예: 1229)" aria-label="회차 검색">
+          <button class="btn-search" id="searchBtn" type="button">검색</button>
+        </div>
+      </div>
+      <ul class="winners-list" id="winnersList"></ul>
+      <button class="btn-load-more" id="loadMoreBtn" type="button">더 보기</button>
+    </section>
+
+    <section class="section history">
+      <div class="history-header">
+        <div>
+          <p class="section-label">My History</p>
+          <h2>내 추첨 기록</h2>
+        </div>
+        <button class="btn-clear" id="clearBtn" type="button">기록 삭제</button>
+      </div>
+      <ul class="history-list" id="historyList"></ul>
+    </section>
+  </main>
+  </div>
+
+  <footer>로또 6/45 · 동행복권 공식 데이터</footer>
+
+  <script src="lotto-data.js"></script>
+  <script>
+    const MIN = 1;
+    const MAX = 45;
+    const COUNT = 6;
+
+    const ballsEl = document.getElementById('balls');
+    const bonusSection = document.getElementById('bonusSection');
+    const bonusBall = document.getElementById('bonusBall');
+    const drawBtn = document.getElementById('drawBtn');
+    const includeBonus = document.getElementById('includeBonus');
+    const historyList = document.getElementById('historyList');
+    const clearBtn = document.getElementById('clearBtn');
+    const winnersList = document.getElementById('winnersList');
+    const winnersMeta = document.getElementById('winnersMeta');
+    const roundSearch = document.getElementById('roundSearch');
+    const searchBtn = document.getElementById('searchBtn');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const machineDome = document.getElementById('machineDome');
+    const tumbleBallsEl = document.getElementById('tumbleBalls');
+    const chuteBall = document.getElementById('chuteBall');
+    const resultSlots = document.getElementById('resultSlots');
+    const bonusRow = document.getElementById('bonusRow');
+    const bonusSlot = document.getElementById('bonusSlot');
+    const drawStatus = document.getElementById('drawStatus');
+    const drawMessage = document.getElementById('drawMessage');
+
+    let isDrawing = false;
+    let tumbleInterval = null;
+    let slotEls = [];
+    let history = JSON.parse(localStorage.getItem('lottoHistory') || '[]');
+    const allWinners = (window.LOTTO_WINNERS || []).slice().sort((a, b) => b.r - a.r);
+    let displayedWinners = [];
+    let winnerLimit = 20;
+    let winnerFilter = null;
+
+    function getBallColor(n) {
+      if (n <= 10) return 'yellow';
+      if (n <= 20) return 'blue';
+      if (n <= 30) return 'red';
+      if (n <= 40) return 'gray';
+      return 'green';
+    }
+
+    function pickNumbers() {
+      const pool = Array.from({ length: MAX - MIN + 1 }, (_, i) => i + MIN);
+      const drawOrder = [];
+
+      for (let i = 0; i < COUNT; i++) {
+        const idx = Math.floor(Math.random() * pool.length);
+        drawOrder.push(pool.splice(idx, 1)[0]);
+      }
+
+      let bonus = null;
+      if (includeBonus.checked && pool.length > 0) {
+        bonus = pool[Math.floor(Math.random() * pool.length)];
+      }
+
+      const numbers = [...drawOrder].sort((a, b) => a - b);
+      return { numbers, drawOrder, bonus };
+    }
+
+    function createBallEl(num, mini = false) {
+      const el = document.createElement(mini ? 'span' : 'div');
+      el.className = mini ? `mini-ball ${getBallColor(num)}` : `ball ${getBallColor(num)}`;
+      el.textContent = num;
+      return el;
+    }
+
+    function formatDate(ymd) {
+      if (!ymd || ymd.length !== 8) return ymd;
+      return `${ymd.slice(0, 4)}.${ymd.slice(4, 6)}.${ymd.slice(6, 8)}`;
+    }
+
+    function formatMoney(amount) {
+      if (!amount) return '1등 당첨자 없음 (이월)';
+      const eok = Math.floor(amount / 100000000);
+      const rest = amount % 100000000;
+      const man = Math.floor(rest / 10000);
+      const won = rest % 10000;
+      let text = '';
+      if (eok > 0) text += `${eok.toLocaleString()}억 `;
+      if (man > 0) text += `${man.toLocaleString()}만 `;
+      if (won > 0 || !text) text += `${won.toLocaleString()}원`;
+      else text += '원';
+      return text.trim();
+    }
+
+    function getFilteredWinners() {
+      if (winnerFilter === null) return allWinners;
+      const found = allWinners.find(item => item.r === winnerFilter);
+      return found ? [found] : [];
+    }
+
+    function renderWinnerItem(item) {
+      const li = document.createElement('li');
+      li.className = 'winner-item';
+
+      const top = document.createElement('div');
+      top.className = 'winner-top';
+
+      const roundEl = document.createElement('span');
+      roundEl.className = 'winner-round';
+      roundEl.textContent = `${item.r}회`;
+
+      const dateEl = document.createElement('span');
+      dateEl.className = 'winner-date';
+      dateEl.textContent = formatDate(item.d);
+
+      const prizeEl = document.createElement('span');
+      prizeEl.className = item.p ? 'winner-prize' : 'winner-prize no-winner';
+      prizeEl.textContent = item.p ? `1등 ${formatMoney(item.p)}` : '1등 당첨자 없음 (이월)';
+
+      top.appendChild(roundEl);
+      top.appendChild(dateEl);
+      top.appendChild(prizeEl);
+
+      const info = document.createElement('div');
+      info.className = 'winner-info';
+
+      const ballsWrap = document.createElement('div');
+      ballsWrap.className = 'history-balls';
+      item.n.forEach(num => ballsWrap.appendChild(createBallEl(num, true)));
+
+      const plus = document.createElement('span');
+      plus.textContent = '+';
+      plus.style.color = 'var(--primary)';
+      plus.style.fontWeight = '700';
+      plus.style.fontSize = '0.85rem';
+      ballsWrap.appendChild(plus);
+      ballsWrap.appendChild(createBallEl(item.b, true));
+
+      const winnersEl = document.createElement('span');
+      winnersEl.className = 'winner-winners';
+      winnersEl.textContent = item.w > 0 ? `당첨 ${item.w}명` : '당첨자 0명';
+
+      info.appendChild(ballsWrap);
+      info.appendChild(winnersEl);
+
+      li.appendChild(top);
+      li.appendChild(info);
+      return li;
+    }
+
+    function renderWinners() {
+      const filtered = getFilteredWinners();
+      displayedWinners = filtered.slice(0, winnerLimit);
+
+      winnersList.innerHTML = '';
+      if (displayedWinners.length === 0) {
+        const empty = document.createElement('li');
+        empty.className = 'winners-empty';
+        empty.textContent = winnerFilter
+          ? `${winnerFilter}회 당첨 정보를 찾을 수 없습니다`
+          : '당첨 데이터를 불러올 수 없습니다';
+        winnersList.appendChild(empty);
+        loadMoreBtn.style.display = 'none';
+        return;
+      }
+
+      displayedWinners.forEach(item => winnersList.appendChild(renderWinnerItem(item)));
+
+      if (winnerFilter !== null) {
+        winnersMeta.textContent = `${winnerFilter}회 검색 결과 · 총 ${allWinners.length}회 데이터`;
+        loadMoreBtn.style.display = 'none';
+      } else {
+        const latest = allWinners[0];
+        winnersMeta.textContent = `최신 ${latest.r}회 (${formatDate(latest.d)}) · 총 ${allWinners.length}회`;
+        loadMoreBtn.style.display = displayedWinners.length < filtered.length ? 'block' : 'none';
+        loadMoreBtn.textContent = `더 보기 (${displayedWinners.length}/${filtered.length})`;
+      }
+    }
+
+    function initDrawBoard() {
+      resultSlots.innerHTML = '';
+      slotEls = [];
+      for (let i = 0; i < COUNT; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'result-slot';
+        slot.innerHTML = `<span class="slot-label">${i + 1}번</span><div class="slot-ball">?</div>`;
+        resultSlots.appendChild(slot);
+        slotEls.push(slot.querySelector('.slot-ball'));
+      }
+      bonusRow.classList.remove('visible');
+      bonusSlot.textContent = '?';
+      bonusSlot.className = 'slot-ball';
+      resetChuteBall();
+    }
+
+    function resetChuteBall() {
+      chuteBall.className = 'chute-ball';
+      chuteBall.textContent = '';
+      chuteBall.style.animation = 'none';
+    }
+
+    function initTumbleBalls() {
+      tumbleBallsEl.innerHTML = '';
+      const positions = [
+        [25, 20], [55, 15], [75, 35], [40, 45], [65, 55], [30, 65],
+        [50, 70], [70, 25], [20, 50], [80, 60], [45, 30], [60, 40]
+      ];
+      positions.forEach(([left, top], i) => {
+        const n = Math.floor(Math.random() * 45) + 1;
+        const el = document.createElement('div');
+        el.className = `tumble-ball ${getBallColor(n)}`;
+        el.textContent = n;
+        el.style.left = `${left}%`;
+        el.style.top = `${top}%`;
+        el.dataset.baseLeft = left;
+        el.dataset.baseTop = top;
+        tumbleBallsEl.appendChild(el);
+      });
+    }
+
+    function startMachine() {
+      machineDome.classList.add('spinning');
+      drawStatus.textContent = '추첨기 가동 중';
+      tumbleInterval = setInterval(() => {
+        tumbleBallsEl.querySelectorAll('.tumble-ball').forEach(el => {
+          const dx = (Math.random() - 0.5) * 18;
+          const dy = (Math.random() - 0.5) * 18;
+          el.style.transform = `translate(${dx}px, ${dy}px) rotate(${Math.random() * 360}deg)`;
+          if (Math.random() > 0.7) {
+            const n = Math.floor(Math.random() * 45) + 1;
+            el.textContent = n;
+            el.className = `tumble-ball ${getBallColor(n)}`;
+          }
+        });
+      }, 80);
+    }
+
+    function stopMachine() {
+      machineDome.classList.remove('spinning');
+      clearInterval(tumbleInterval);
+      tumbleInterval = null;
+      tumbleBallsEl.querySelectorAll('.tumble-ball').forEach(el => {
+        el.style.transform = '';
+      });
+    }
+
+    function setDrawMessage(text, highlight = false) {
+      drawMessage.textContent = text;
+      drawMessage.classList.toggle('highlight', highlight);
+    }
+
+    function spinChuteNumber(durationMs) {
+      return new Promise(resolve => {
+        chuteBall.classList.add('spinning-num');
+        const start = Date.now();
+        const tick = () => {
+          const n = Math.floor(Math.random() * 45) + 1;
+          chuteBall.textContent = n;
+          chuteBall.className = `chute-ball spinning-num ${getBallColor(n)}`;
+          if (Date.now() - start < durationMs) {
+            requestAnimationFrame(tick);
+          } else {
+            resolve();
+          }
+        };
+        tick();
+      });
+    }
+
+    async function revealBall(slotEl, number, index) {
+      slotEls.forEach(s => s.classList.remove('waiting'));
+      slotEl.classList.add('waiting');
+
+      setDrawMessage(`제 ${index + 1}번 추첨번호는...`);
+      drawStatus.textContent = `${index + 1}번째 번호 추첨`;
+
+      resetChuteBall();
+      await sleep(200);
+      await spinChuteNumber(1200 + index * 150);
+
+      chuteBall.classList.remove('spinning-num');
+      chuteBall.textContent = number;
+      chuteBall.className = `chute-ball ${getBallColor(number)}`;
+      chuteBall.style.animation = 'none';
+      void chuteBall.offsetWidth;
+      chuteBall.classList.add('rolling');
+
+      await sleep(950);
+
+      slotEl.classList.remove('waiting');
+      slotEl.textContent = number;
+      slotEl.className = `slot-ball revealed ${getBallColor(number)}`;
+
+      setDrawMessage(`제 ${index + 1}번 추첨번호는 ${number}번!`, true);
+      resetChuteBall();
+      await sleep(600);
+    }
+
+    async function revealBonus(number) {
+      bonusRow.classList.add('visible');
+      bonusSlot.classList.add('waiting');
+
+      setDrawMessage('보너스 번호를 추첨합니다...');
+      drawStatus.textContent = '보너스 번호 추첨';
+
+      resetChuteBall();
+      await sleep(300);
+      await spinChuteNumber(1500);
+
+      chuteBall.classList.remove('spinning-num');
+      chuteBall.textContent = number;
+      chuteBall.className = `chute-ball ${getBallColor(number)}`;
+      chuteBall.style.animation = 'none';
+      void chuteBall.offsetWidth;
+      chuteBall.classList.add('rolling');
+
+      await sleep(950);
+
+      bonusSlot.classList.remove('waiting');
+      bonusSlot.textContent = number;
+      bonusSlot.className = `slot-ball revealed ${getBallColor(number)}`;
+
+      setDrawMessage(`보너스 번호는 ${number}번!`, true);
+      resetChuteBall();
+      await sleep(500);
+    }
+
+    async function sortResultBoard(numbers) {
+      setDrawMessage('당첨번호를 오름차순으로 정렬합니다...');
+      drawStatus.textContent = '번호 정렬';
+      await sleep(500);
+
+      numbers.forEach((num, i) => {
+        slotEls[i].style.transition = 'transform 0.35s ease, opacity 0.35s ease';
+        slotEls[i].style.opacity = '0.4';
+      });
+      await sleep(400);
+
+      numbers.forEach((num, i) => {
+        slotEls[i].textContent = num;
+        slotEls[i].className = `slot-ball revealed ${getBallColor(num)}`;
+        slotEls[i].style.opacity = '1';
+      });
+      await sleep(400);
+    }
+
+    async function animateDraw({ numbers, drawOrder, bonus }) {
+      initDrawBoard();
+      initTumbleBalls();
+      startMachine();
+      setDrawMessage('추첨기를 가동합니다...');
+      await sleep(1500);
+
+      for (let i = 0; i < COUNT; i++) {
+        await revealBall(slotEls[i], drawOrder[i], i);
+      }
+
+      stopMachine();
+      await sortResultBoard(numbers);
+
+      if (bonus !== null) {
+        startMachine();
+        await sleep(800);
+        await revealBonus(bonus);
+        stopMachine();
+      }
+
+      const sorted = numbers.join(', ');
+      setDrawMessage(`추첨 완료 — ${sorted}${bonus !== null ? ` + 보너스 ${bonus}` : ''}`, true);
+      drawStatus.textContent = '추첨 완료';
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function addToHistory({ numbers, bonus }) {
+      history.unshift({ numbers, bonus, time: Date.now() });
+      if (history.length > 20) history.pop();
+      localStorage.setItem('lottoHistory', JSON.stringify(history));
+      renderHistory();
+    }
+
+    function renderHistory() {
+      historyList.innerHTML = '';
+      history.forEach((entry, idx) => {
+        const li = document.createElement('li');
+        li.className = 'history-item';
+
+        const indexEl = document.createElement('span');
+        indexEl.className = 'history-index';
+        indexEl.textContent = `#${history.length - idx}`;
+
+        const ballsWrap = document.createElement('div');
+        ballsWrap.className = 'history-balls';
+        entry.numbers.forEach(n => ballsWrap.appendChild(createBallEl(n, true)));
+
+        if (entry.bonus !== null) {
+          const plus = document.createElement('span');
+          plus.textContent = '+';
+          plus.style.color = 'var(--primary)';
+          plus.style.fontWeight = '700';
+          plus.style.fontSize = '0.85rem';
+          ballsWrap.appendChild(plus);
+          ballsWrap.appendChild(createBallEl(entry.bonus, true));
+        }
+
+        li.appendChild(indexEl);
+        li.appendChild(ballsWrap);
+        historyList.appendChild(li);
+      });
+    }
+
+    drawBtn.addEventListener('click', async () => {
+      if (isDrawing) return;
+      isDrawing = true;
+      drawBtn.disabled = true;
+      includeBonus.disabled = true;
+      drawBtn.textContent = '추첨 중...';
+
+      const result = pickNumbers();
+      await animateDraw(result);
+      addToHistory(result);
+
+      isDrawing = false;
+      drawBtn.disabled = false;
+      includeBonus.disabled = false;
+      drawBtn.textContent = '번호 추첨';
+    });
+
+    clearBtn.addEventListener('click', () => {
+      history = [];
+      localStorage.removeItem('lottoHistory');
+      renderHistory();
+    });
+
+    includeBonus.addEventListener('change', () => {
+      if (!includeBonus.checked && !isDrawing) {
+        bonusRow.classList.remove('visible');
+      }
+    });
+
+    searchBtn.addEventListener('click', () => {
+      const value = parseInt(roundSearch.value, 10);
+      if (!value || value < 1) {
+        winnerFilter = null;
+        winnerLimit = 20;
+        roundSearch.value = '';
+      } else {
+        winnerFilter = value;
+        winnerLimit = 1;
+      }
+      renderWinners();
+    });
+
+    roundSearch.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') searchBtn.click();
+    });
+
+    loadMoreBtn.addEventListener('click', () => {
+      winnerLimit += 20;
+      renderWinners();
+    });
+
+    renderWinners();
+    renderHistory();
+    initDrawBoard();
+    initTumbleBalls();
+  </script>
+</body>
+</html>

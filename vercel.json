@@ -6,6 +6,9 @@
     },
     "api/draws.js": {
       "maxDuration": 10
+    },
+    "api/status.js": {
+      "maxDuration": 10
     }
   }
 }

@@ -6,6 +6,21 @@ function setCors(res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
 
+function getQueryParam(req, name) {
+  let value = req.query?.[name];
+  if (Array.isArray(value)) value = value[0];
+  if (value) return String(value).trim();
+
+  try {
+    const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost';
+    const proto = req.headers['x-forwarded-proto'] || 'https';
+    const url = new URL(req.url || '/', `${proto}://${host}`);
+    return url.searchParams.get(name);
+  } catch {
+    return null;
+  }
+}
+
 function parseBody(req) {
   let body = req.body;
   if (typeof body === 'string') {
@@ -51,7 +66,7 @@ module.exports = async (req, res) => {
     const supabase = getSupabase();
 
     if (req.method === 'GET') {
-      const sessionId = req.query?.session_id;
+      const sessionId = getQueryParam(req, 'session_id');
       if (!sessionId) {
         return res.status(400).json({ error: 'session_id가 필요합니다.' });
       }
@@ -81,7 +96,7 @@ module.exports = async (req, res) => {
       const { data, error } = await supabase
         .from('lotto_draws')
         .insert({
-          session_id: sessionId,
+          session_id: String(sessionId).trim(),
           numbers,
           bonus,
           draw_type: drawType,
@@ -94,7 +109,7 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === 'DELETE') {
-      const sessionId = req.query?.session_id;
+      const sessionId = getQueryParam(req, 'session_id');
       if (!sessionId) {
         return res.status(400).json({ error: 'session_id가 필요합니다.' });
       }

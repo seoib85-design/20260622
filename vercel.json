@@ -3,6 +3,9 @@
   "functions": {
     "api/saju-recommend.js": {
       "maxDuration": 30
+    },
+    "api/draws.js": {
+      "maxDuration": 10
     }
   }
 }
